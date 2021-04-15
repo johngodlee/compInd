@@ -1,0 +1,14 @@
+Package: compInd
+Title: Forest tree-tree competition indices
+Version: 0.1
+Authors@R: 
+    person(given = "John",
+           family = "Godlee",
+           role = c("aut", "cre"),
+           email = "johngodlee@gmail.com")
+Description: 
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
