@@ -14,7 +14,7 @@
 pointDens <- function(dbh, dist) {
   eq1 <- (dbh / dist)^2
   ranks <- rank(dbh)
-  eq2 <- (0.25 * (rank - 0.5) * eq1) / rank
+  eq2 <- (0.25 * (ranks - 0.5) * eq1) / ranks
   sum(eq2)
 }
 

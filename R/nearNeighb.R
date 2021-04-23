@@ -41,7 +41,7 @@ nearNeighb <- function(x, y, id = NULL, radius, zones = NULL) {
     focal <- row.names(dist_mat)[z]
 
     # Convert focal tree to sfg geometry
-    focal_sfg <- st_geometry(dat_sf[dat_sf$id == focal,])[[1]]
+    focal_sfg <- sf::st_geometry(dat_sf[dat_sf$id == focal,])[[1]]
 
     # Get IDs of neighbours
     ids <- colnames(dist_mat)[dist_mat[z,] <= radius]
@@ -53,7 +53,7 @@ nearNeighb <- function(x, y, id = NULL, radius, zones = NULL) {
       out_df <- data.frame(focal, nb = ids, nb_dist = out)
 
       # Add angle
-      out_df$nb_angle <- unlist(lapply(st_geometry(dat_sf[dat_sf$id %in% ids,]), function(i) {
+      out_df$nb_angle <- unlist(lapply(sf::st_geometry(dat_sf[dat_sf$id %in% ids,]), function(i) {
         angleCalc(focal_sfg, i)
       }))
     } else {
