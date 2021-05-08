@@ -23,5 +23,5 @@ Calculate the Winkelmass (spatial regularity of trees)
 von Gadow, K., Hui, G. Y. (2001). Characterising forest spatial
 structure and diversity. Sustainable Forestry in Temperate Regions. Proc. of
 an international workshop organized at the University of Lund, Sweden.
-Pages 20- 30.
+Pages 20-30.
 }

@@ -4,7 +4,7 @@
 \alias{nearNeighb}
 \title{Find nearest neighbours within a radius}
 \usage{
-nearNeighb(x, y, id = NULL, radius, zones = NULL)
+nearNeighb(x, y, id = NULL, k = NULL, radius = NULL, zones = NULL)
 }
 \arguments{
 \item{x}{vector of individual x axis coordinates}
@@ -13,11 +13,16 @@ nearNeighb(x, y, id = NULL, radius, zones = NULL)
 
 \item{id}{vector of individual IDs. If NULL, vector indices are used.}
 
-\item{radius}{radius to look for nearest neighbours, in units of XY coordinates}
+\item{k}{number of neighbours to search for, starting from nearest in
+coordinate space. If NULL, \code{radius} must be provided.}
+
+\item{radius}{radius to look for nearest neighbours, in units of XY
+coordinates. If NULL, \code{k} must be provided.}
 
 \item{zones}{number of zones of equal arc angle, e.g. zones == 4 results in
 four zones each with 90deg arc. If NULL, no zones are defined. If zones
-are defined, the nearest competitor within each zone is returned.}
+are defined, the nearest competitor within each zone is returned. If
+zones are defined, \code{radius} must also be defined.}
 }
 \value{
 list of dataframes per focal tree, of neighbours, their distances

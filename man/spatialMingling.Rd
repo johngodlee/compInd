@@ -17,7 +17,8 @@ spatialMingling(x, y, sp, k = 4, adj = FALSE)
 
 \item{adj}{logical, if TRUE the basic spatial mingling index is multiplied
 by Si/nmax, where Si is the number of species in the neighbourhood of
-the focal tree, and nmax is the total number of species in the data.}
+the focal tree, and nmax is the maximum number of species possible in the
+neighbourhood, including the focal tree, i.e. k + 1.}
 }
 \value{
 
@@ -29,5 +30,5 @@ von Gadow's spatial mingling index
 von Gadow, K., Hui, G. Y. (2001). Characterising forest spatial
 structure and diversity. Sustainable Forestry in Temperate Regions. Proc. of
 an international workshop organized at the University of Lund, Sweden.
-Pages 20- 30.
+Pages 20-30.
 }
