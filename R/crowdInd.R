@@ -20,6 +20,6 @@
 #' @export
 #'
 crowdInd <- function(dbh, dbh_min = 10, dbh_max = 30) {
-	sum(dbh[dbh > dbh_min & x < dbh_max])
+	sum(dbh[dbh > dbh_min & dbh < dbh_max])
 }
 

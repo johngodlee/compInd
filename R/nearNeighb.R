@@ -3,10 +3,14 @@
 #' @param x vector of individual x axis coordinates
 #' @param y vector of individual y axis coordinates
 #' @param id vector of individual IDs. If NULL, vector indices are used.
-#' @param radius radius to look for nearest neighbours, in units of XY coordinates
+#' @param k number of neighbours to search for, starting from nearest in 
+#'     coordinate space. If NULL, \code{radius} must be provided.
+#' @param radius radius to look for nearest neighbours, in units of XY 
+#'     coordinates. If NULL, \code{k} must be provided.
 #' @param zones number of zones of equal arc angle, e.g. zones == 4 results in 
 #'     four zones each with 90deg arc. If NULL, no zones are defined. If zones
-#'     are defined, the nearest competitor within each zone is returned.
+#'     are defined, the nearest competitor within each zone is returned. If 
+#'     zones are defined, \code{radius} must also be defined.
 #'
 #' @return list of dataframes per focal tree, of neighbours, their distances 
 #'     and angles. If no competitors are found within the radius of a focal 
@@ -16,7 +20,28 @@
 #' 
 #' @export
 #' 
-nearNeighb <- function(x, y, id = NULL, radius, zones = NULL) {
+nearNeighb <- function(x, y, id = NULL, k = NULL, radius = NULL, zones = NULL) {
+  # Check parameters defined properly
+  if (!is.null(zones) & is.null(radius)) {
+    stop("If zones defined, radius must also be defined")
+  }
+
+  if (is.null(k) & is.null(radius)) {
+    stop("If k is not defined, radius must be defined")
+  }
+
+  if (!is.null(k) & !is.null(radius)) { 
+    stop("Either k or radius must be defined, not both")
+  }
+
+  if (k >= length(x)) {
+    stop("k is larger than the number of stems in the plot")
+  }
+
+  if (length(x) != length(y)) {
+    stop("Unequal coordinate vector lengths")
+  }
+
   # Add IDs if missing
   if (is.null(id)) {
     id <- seq_along(x)
@@ -35,7 +60,7 @@ nearNeighb <- function(x, y, id = NULL, radius, zones = NULL) {
   colnames(dist_mat) <- id
   rownames(dist_mat) <- id
 
-  # Find neighbours within radius
+  # Find neighbours 
   nb <- lapply(seq_len(nrow(dist_mat)), function(z) {
     # Get focal tree 
     focal <- row.names(dist_mat)[z]
@@ -43,8 +68,16 @@ nearNeighb <- function(x, y, id = NULL, radius, zones = NULL) {
     # Convert focal tree to sfg geometry
     focal_sfg <- sf::st_geometry(dat_sf[dat_sf$id == focal,])[[1]]
 
-    # Get IDs of neighbours
-    ids <- colnames(dist_mat)[dist_mat[z,] <= radius]
+    # Get IDs of neighbours:
+
+    if (!is.null(radius)) {
+      # Within radius
+      ids <- colnames(dist_mat)[dist_mat[z,] <= radius]
+    } else if (!is.null(k)) {
+      # Within k
+      ids <- names(sort(dist_mat[z,])[seq_len(k + 1)])
+    }
+
     ids <- ids[ids != focal]
     out <- dist_mat[z, c(ids)]
 
