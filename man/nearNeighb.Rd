@@ -11,7 +11,7 @@ nearNeighb(x, y, id = NULL, k = NULL, radius = NULL, zones = NULL)
 
 \item{y}{vector of individual y axis coordinates}
 
-\item{id}{vector of individual IDs. If NULL, vector indices are used.}
+\item{id}{vector of individual IDs. If NULL, vector positions are used.}
 
 \item{k}{number of neighbours to search for, starting from nearest in
 coordinate space. If NULL, \code{radius} must be provided.}

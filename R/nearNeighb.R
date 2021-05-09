@@ -2,7 +2,7 @@
 #'
 #' @param x vector of individual x axis coordinates
 #' @param y vector of individual y axis coordinates
-#' @param id vector of individual IDs. If NULL, vector indices are used.
+#' @param id vector of individual IDs. If NULL, vector positions are used.
 #' @param k number of neighbours to search for, starting from nearest in 
 #'     coordinate space. If NULL, \code{radius} must be provided.
 #' @param radius radius to look for nearest neighbours, in units of XY 
