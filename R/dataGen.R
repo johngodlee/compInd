@@ -34,8 +34,6 @@ dataGen <- function(nplots = 5, min_stems = 200, max_stems = 500,
   resample <- function(x, ...) x[sample.int(length(x), ...)]
   n_stems <- resample(seq(min_stems, max_stems, 1), nplots, replace = TRUE)
 
-  lapply(ab_list, nrow)
-
   # Get grid coordinates
   x_coords <- seq(0, plot_width, 0.1)
   y_coords <- seq(0, plot_length, 0.1)

@@ -14,6 +14,11 @@ spatialMingling(x, y, sp, k = 4, adj = FALSE)
 \item{sp}{vector of individual species names}
 
 \item{k}{number of neighbours to consider}
+
+\item{adj}{logical, if \code{TRUE} the basic spatial mingling index is multiplied
+by \eqn{\frac{S_{i}}{n_{max}}}, where \eqn{S_{i}} is the number of species in the neighbourhood of
+the focal individual, and \eqn{n_{max}} is the maximum number of species possible in the
+neighbourhood, including the focal individual, i.e. \eqn{k + 1}.}
 }
 \value{
 value of the spatial mingling index for each individual in the structural unit.
