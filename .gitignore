@@ -1,1 +1,5 @@
 .Rd2pdf*/*
+inst/doc
+doc
+Meta
+vignettes/cache/

@@ -70,13 +70,14 @@
 
 \maketitle{}
 
-\tableofcontents{}
+\texttt{compInd} is a collection of spatially explicit competition and diversity indices taken primarily from the forestry literature. The aim of the package is to provide these functions in a consistent framework and to provide convenience functions to prepare data for analysis. This document provides some basic usage of \texttt{compInd}, and describes the behaviour of some of the competition indices included as functions in the package. See the manual for the package for more information on each function, including references and equations.
 
 <<setup, echo=FALSE>>=
 knitr::knit_hooks$set(document = function(x) {
 	sub('\\usepackage[]{color}', 
 		'\\usepackage[table]{xcolor}', x, fixed = TRUE)})
 knitr::opts_chunk$set(
+  eval=FALSE,
   cache=TRUE, 
   warning=FALSE, 
   message=FALSE,
@@ -90,14 +91,16 @@ options(width=60,
 set.seed(000462)
 @
 
-<<pkg, echo=FALSE>>=
+<<pkg, message=FALSE>>=
 library(compInd)
 
 library(sf)
 library(dplyr)
+library(tidyr)
 library(ggplot2)
 library(patchwork)
 library(viridis)
+library(parallel)
 @
 
 Generate example plot data suited to spatial competition indices:
@@ -118,6 +121,14 @@ ggplot() +
   coord_equal()
 @
 
+\begin{figure}[H]
+\centering
+	\includegraphics[width=\textwidth]{dat_plot}
+	\caption{Five plots with randomly located stems of different species.}
+	\label{dat_plot}
+\end{figure}
+
+
 There is also a real-world example of a 1 ha woodland plot in Bicuar National Park, southwest Angola:
 
 <<>>=
@@ -131,19 +142,26 @@ ggplot() +
   coord_equal()
 @
 
+\begin{figure}[H]
+\centering
+	\includegraphics[width=\textwidth]{bicuar_plot}
+	\caption{Bicuar National Park data object.}
+	\label{bicuar_plot}
+\end{figure}
+
 Generate some extra columns:
 
 <<>>=
-dat$ba <- basalarea(dat$diam)
+dat$ba <- basalArea(dat$diam)
 @
 
-Many of the functions in \texttt{compInd} are calculated for each individual in the structural unit, based on the individuals in their local neighbourhood. \texttt{nearNeighb()} provides multiple methods of identifying neighbours around focal individuals, returning a list of dataframes, one per focal individual, with the spatial relationships between the focal individual and each neighbour. The example below first splits the example data by plot ID, then feeds the data plot by plot to \texttt{nearNeighb()}, extracting the 12 nearest neighbours to each individual in the plot. After that, it adds some extra information to each focal and neighbour individual such as the species, diameter and spatial coordinates.
+Many of the functions in \texttt{compInd} are calculated for each individual in the structural unit, based on the individuals in their local neighbourhood. \texttt{nearNeighb()} provides multiple methods of identifying neighbours around focal individuals, returning a list of dataframes, one per focal individual, with the spatial relationships between the focal individual and each neighbour. The example below first splits the example data by plot ID, then feeds the data plot by plot to \texttt{nearNeighb()}, extracting the 4 nearest neighbours to each individual in the plot. After that, it adds some extra information to each focal and neighbour individual such as the species, diameter and spatial coordinates.
 
 <<>>=
 dat_split <- split(dat, dat$plot_id)
 
-dat_neighb12 <- lapply(dat_split, function(x) {
-  neighb <- nearNeighb(x$x_grid, x$y_grid, x$stem_id, k = 12)
+dat_neighb <- lapply(dat_split, function(x) {
+  neighb <- nearNeighb(x$x_grid, x$y_grid, x$stem_id, k = 4)
   out <- lapply(neighb, function(y) {
     left_join(y, x, by = c("focal" = "stem_id")) %>%
       rename(focal_diam = diam, focal_species = species, 
@@ -176,14 +194,14 @@ Now it's possible to test various functions in \texttt{compInd}. The following f
 Using \texttt{alemdag()} as an example, calculate the value of the Alemdag's tree competition index for each focal individual in each plot, using four neighbours as per convention:
 
 <<>>=
-alemdag_list <- lapply(dat_neighb12, function(x) {
+alemdag_list <- lapply(dat_neighb, function(x) {
 	unlist(lapply(x, function(y) {
-		alemdag(y$nb_diam[1:4], y$nb_dist[1:4], unique(y$focal_diam))
+		alemdag(y$nb_diam, y$nb_dist, unique(y$focal_diam))
 	}))
 })
 @
 
-To use the other functions listed above, just switch the function name and particular arguments out in place of \texttt{alemdag()}.
+To use the other functions listed above, just switch the function name and particular arguments out in place of \texttt{alemdag()}. To scale up to a whole plot, either the sum or mean of values from focal individuals is commonly used, depending on the competition index.
 
 Other functions for certain competition indices, those which don't rely on a zone of competition, act on each structural unit, i.e. plot, separately. These functions are:
 
@@ -213,7 +231,7 @@ lorimerCZR(k = 1, nrow(bicuar))
 
 \texttt{edgeExclude()} can be used to find individuals in the edge or buffer zone of a plot. For competition indices which rely on a radius of expected neighbourhood effects such as \texttt{lorimerComp()}, \texttt{alemdag()} etc, individuals near the edges of the plot will have an erroneous under-estimation of competition compared to other individuals in the plot interior, because there is a lack of data outside the plot. It is common practice to exclude focal individuals if they are located a distance from plot edge that is less than the radius of the competition zone. These individuals could still be used as competitors for other focal individuals, but not as focal individuals themselves. 
 
-Consider the plot below, which shows the effect of a buffer of 10 m radius in causing under-estimations of competition calculated by \texttt{crowdInd()}:
+Consider the plots below, which show the effect of a buffer of 10 m radius in causing under-estimations of competition calculated by \texttt{crowdInd()}:
 
 <<>>=
 # Generate data for one plot, 500 stems
@@ -230,20 +248,40 @@ neighb_rad10 <- nearNeighb(dat$x_grid, dat$y_grid, radius = 10)
 dat$n_neighb <- unlist(lapply(neighb_rad10, nrow))
 
 # Create a map of individuals, coloured and sized by number of neighbours
-neighb_plot <- ggplot() + 
+
+ggplot() + 
   geom_sf(data = dat_poly, fill = NA, colour = "red") + 
   geom_point(data = dat, 
   	  aes(x = x_grid, y = y_grid, size = n_neighb, colour = n_neighb)) + 
   scale_colour_viridis()
+@
 
+\begin{figure}[H]
+\centering
+	\includegraphics[width=\textwidth]{edge_map}
+	\caption{Visualising the number of neighbours within a 10 m radius in a 1 ha plot.}
+	\label{edge_map}
+\end{figure}
+
+<<>>=
 # Find if an individual is in the edge of a plot
 dat$edge <- ifelse(rownames(dat) %in% 
 	edgeExclude(dat_poly, 10, dat$x_grid, dat$y_grid), "OUT", "IN")
 
 # Create boxplot
-neighb_boxplot <- ggplot() + 
-	geom_boxplot(data = dat, aes(x = edge, y = n_neighb, colour = edge))
+ggplot() + 
+	geom_boxplot(data = dat, 
+		aes(x = edge, y = n_neighb, colour = edge))
+@
 
+\begin{figure}[H]
+\centering
+	\includegraphics[width=\textwidth]{edge_box}
+	\caption{Boxplot of number of neighbours within a 10 m radius in a 1 ha plot.}
+	\label{edge_box}
+\end{figure}
+
+<<>>=
 # Create a buffer around each plot
 dat_buffer <- st_as_sf(dat, coords = c("x_grid", "y_grid")) %>%
 	st_buffer(., 10)
@@ -251,25 +289,27 @@ dat_buffer <- st_as_sf(dat, coords = c("x_grid", "y_grid")) %>%
 dat_poly_buffer <- sf::st_buffer(dat_poly, -10, endCapStyle = "FLAT")
 
 # Map of buffer radiuses, coloured by if individual is in edge of plot
-rad_plot <- ggplot() + 
+ggplot() + 
 	geom_sf(data = dat_buffer, aes(colour = edge), fill = NA) + 
 	geom_point(data = dat,
   	  aes(x = x_grid, y = y_grid)) + 
 	geom_sf(data = dat_poly, fill = NA, colour = "red") + 
 	geom_sf(data = dat_poly_buffer, fill = NA, colour = "green")
-
-wrap_plots(neighb_plot, neighb_boxplot, rad_plot) + 
-	plot_layout(ncol = 1)
 @
 
-Plot 1 shows variation in the number of neighbours for each individual in the plot, plot 2 visualises this as a box plot, and plot 3 illustrates the results of \texttt{edgeExclude()}. In plot three each individual is given a buffer of the radius of the competition zone (10 m). These radii are coloured according to whether they are identified for exclusion by \texttt{edgeExclude()}. The red squares indicate the boundaries of the plot, and the green square indicates the 10 m buffer than \texttt{edgeExclude()} uses to identify points at the edge of the plot.
+\begin{figure}[H]
+\centering
+	\includegraphics[width=\textwidth]{edge_buffer}
+	\caption{Results of \texttt{edgeExclude()}. Each individual is given a buffer of the radius of the competition zone (10 m). These radii are coloured according to whether they are identified for exclusion by \texttt{edgeExclude()}. The red squares indicate the boundaries of the plot, and the green square indicates the 10 m buffer than \texttt{edgeExclude()} uses to identify points at the edge of the plot.}
+	\label{edge_buffer}
+\end{figure}
 
 The various competition indices in \texttt{compInd} behave in subtly different ways as the number of individuals, species, neighbours or their spatial distribution changes. Below we produce visualisations of various indices under different conditions.
 
 Generate data with increasing abundance:
 
 <<>>=
-ab_vec <- rep(seq(50,1000, 50), 10)
+ab_vec <- rep(seq(50,1000, 100), 10)
 ab_list <- lapply(ab_vec, function(x) {
   out <- dataGen(nplots = 1, min_stems = x, max_stems = x, species = LETTERS[1:10])
   out$plot_id <- as.character(x)
@@ -277,10 +317,8 @@ ab_list <- lapply(ab_vec, function(x) {
   return(out)
 })
 
-stopifnot(all(unlist(lapply(ab_list, nrow)) == ab_vec))
-
 ggplot() + 
-  geom_point(data = do.call(rbind, ab_list[1:20]), 
+  geom_point(data = do.call(rbind, ab_list[seq(1,20,2)]), 
     aes(x = x_grid, y = y_grid, fill = species),
     shape = 21) + 
   facet_wrap(~as.numeric(plot_id)) + 
@@ -289,11 +327,18 @@ ggplot() +
   coord_equal()
 @
 
+\begin{figure}[H]
+\centering
+	\includegraphics[width=\textwidth]{ab_map}
+	\caption{Visualising variation in individual density.}
+	\label{ab_map}
+\end{figure}
+
 Calculate nearest neighbours for each sample:
 
 <<>>=
-ab_neighb12 <- mclapply(ab_list, function(x) {
-  neighb <- nearNeighb(x$x_grid, x$y_grid, x$stem_id, k = 12)
+ab_neighb <- mclapply(ab_list, function(x) {
+  neighb <- nearNeighb(x$x_grid, x$y_grid, x$stem_id, k = 4)
   out <- lapply(neighb, function(y) {
     left_join(y, x, by = c("focal" = "stem_id")) %>%
       rename(focal_diam = diam, focal_species = species, 
@@ -310,27 +355,28 @@ ab_neighb12 <- mclapply(ab_list, function(x) {
 Calculate plot level values for various indices: 
 
 <<>>=
-ab_summ <- do.call(rbind, mclapply(seq_along(ab_neighb12), function(x) {
+ab_summ <- do.call(rbind, mclapply(seq_along(ab_neighb), function(x) {
   plot_id <- unique(ab_list[[x]]$plot_id)
   ab_lorimerCZR <- lorimerCZR(1, nrow(ab_list[[x]])) 
   ab_clarkEvans <- clarkEvans(ab_list[[x]]$x_grid, ab_list[[x]]$y_grid, 10000)
   ab_pielou_mean <- mean(pielou(ab_list[[x]]$x_grid, ab_list[[x]]$y_grid, 0, 100, 0, 100, 4))
-  ab_spatialMingling_mean <- mean(spatialMingling(ab_list[[x]]$x_grid, ab_list[[x]]$y_grid, ab_list[[x]]$species))
+  ab_spatialMingling_mean <- mean(spatialMingling(
+  		  ab_list[[x]]$x_grid, ab_list[[x]]$y_grid, ab_list[[x]]$species))
   ab_winkelmass_mean <- mean(winkelmass(ab_list[[x]]$x_grid, ab_list[[x]]$y_grid, 4))
 
-  out <- do.call(rbind, lapply(ab_neighb12[[x]], function(y) {
+  out <- do.call(rbind, lapply(ab_neighb[[x]], function(y) {
     data.frame(
-      ab_alemdag = alemdag(y$nb_diam[1:4], y$nb_dist[1:4], unique(y$focal_diam)),
-      ab_baLarger = baLarger(y$nb_ba[1:4], unique(y$focal_ba)),
-      ab_baLocal = baLocal(y$nb_ba[1:4]),
-      ab_crowdInd = crowdInd(y$nb_diam[1:4]),
-      ab_dbhCorr = dbhCorr(y$nb_diam[1:4], unique(y$focal_diam)),
-      ab_dbhDiff = dbhDiff(y$nb_diam[1:4], unique(y$focal_diam)),
-      ab_dbhDom = dbhDom(y$nb_diam[1:4], unique(y$focal_diam)),
-      ab_hegyi = hegyi(y$nb_diam[1:12], y$nb_dist[1:12], unique(y$focal_diam)),
+      ab_alemdag = alemdag(y$nb_diam, y$nb_dist, unique(y$focal_diam)),
+      ab_baLarger = baLarger(y$nb_ba, unique(y$focal_ba)),
+      ab_baLocal = baLocal(y$nb_ba),
+      ab_crowdInd = crowdInd(y$nb_diam),
+      ab_dbhCorr = dbhCorr(y$nb_diam, unique(y$focal_diam)),
+      ab_dbhDiff = dbhDiff(y$nb_diam, unique(y$focal_diam)),
+      ab_dbhDom = dbhDom(y$nb_diam, unique(y$focal_diam)),
+      ab_hegyi = hegyi(y$nb_diam, y$nb_dist, unique(y$focal_diam)),
       ab_lorimerComp = lorimerComp(y$nb_diam, y$nb_dist, unique(y$focal_diam), ab_lorimerCZR),
-      ab_martinEk = martinEk(y$nb_diam[1:4], y$nb_dist[1:4], unique(y$focal_diam)),
-      ab_pointDens = pointDens(y$nb_diam[1:4], y$nb_dist[1:4])
+      ab_martinEk = martinEk(y$nb_diam, y$nb_dist, unique(y$focal_diam)),
+      ab_pointDens = pointDens(y$nb_diam, y$nb_dist)
     )
   }))
 
@@ -362,7 +408,7 @@ ab_summ <- do.call(rbind, mclapply(seq_along(ab_neighb12), function(x) {
 }, mc.cores = 4))
 @
 
-Plot variation in indices with varying abundance
+Plot variation in indices with varying abundance:
 
 <<>>=
 ab_summ_gather <- ab_summ %>%
@@ -378,7 +424,15 @@ ggplot() +
   labs(x = "N stems", y = "")
 @
 
-The number of neighbours considered by \texttt{nearNeighb()} also affects the indices.
+\begin{figure}[H]
+\centering
+	\includegraphics[width=\textwidth]{ab_summ_plot}
+	\caption{Variation in various competition indices with increasing individual abundance.}
+	\label{ab_summ_plot}
+\end{figure}
+
+
+The number of neighbours considered by \texttt{nearNeighb()} also affects the behaviour of the indices:
 
 <<>>=
 # Using datasets with 100 individuals 
@@ -420,7 +474,9 @@ k_summ <- do.call(rbind, mclapply(k_vec, function(x) {
   }))
 
 }, mc.cores = 4))
+@
 
+<<>>=
 k_summ_gather <- k_summ %>% 
   gather(key, value, -k)
 
@@ -433,6 +489,14 @@ ggplot() +
   theme_bw() + 
   labs(x = "k", y = "")
 @
+
+\begin{figure}[H]
+\centering
+	\includegraphics[width=\textwidth]{k_summ_plot}
+	\caption{Variation in various competition indices with increasing number of neighbours considered.}
+	\label{k_summ_plot}
+\end{figure}
+
 
 Variation in the number of species affects \texttt{spatialMingling()}:
 
@@ -459,6 +523,13 @@ ggplot() +
   theme_bw() + 
   labs(x = "N species", y = expression(bar(M[i])))
 @
+
+\begin{figure}[H]
+\centering
+	\includegraphics[width=\textwidth]{mi_sp}
+	\caption{Variation in spatial mingling with increasing number of randomly distributed species.}
+	\label{mi_sp}
+\end{figure}
 
 As does variation in the spatial mixing of species, which is what \texttt{spatialMingling()} is designed to detect:
 
@@ -518,7 +589,6 @@ mi_repl_df <- do.call(rbind, mclapply(repl_list, function(x) {
   }))
   }, mc.cores = 4))
 
-
 mi_repl_df_g <- mi_repl_df %>%
   group_by(adj) %>%
   mutate(run = as.character(row_number()))
@@ -530,11 +600,16 @@ ggplot() +
   labs(x = "N substitutions", y = expression(bar(M[i])))
 @
 
+\begin{figure}[H]
+\centering
+	\includegraphics[width=\textwidth]{mi_nmingl}
+	\caption{Variation in spatial mingling with increasing mingling of species.}
+	\label{mi_nmingl}
+\end{figure}
+
 The winkelmass measures the spatial regularity of individuals. The plots below show how the winkelmass varies with increasingly random individual location:
 
 <<>>=
-# Winkelmass with increasing spatial randomness
-
 xy_vec <- seq(2,50, 4)
 dat <- expand.grid(xy_vec, xy_vec)
 names(dat) <- c("x", "y")
@@ -557,7 +632,9 @@ for (i in seq_len(200)) {
     x
   })
 }
+@
 
+<<>>=
 wi_df <- do.call(rbind, mclapply(wi_list, function(x) {
   do.call(rbind, lapply(x, function(y) {
     data.frame(
@@ -566,8 +643,6 @@ wi_df <- do.call(rbind, mclapply(wi_list, function(x) {
       )
     }))
   }, mc.cores = 4))
-
-saveRDS(wi_df, "wi_df.rds")
 
 wi_df_clean <- wi_df %>%
   group_by(adj) %>%
@@ -603,9 +678,15 @@ wi_map_plot <- ggplot() +
   labs(x = "X", y = "Y") + 
   coord_equal()
 
-pdf(file = "wi_diagram.pdf", width = 8, height = 5)
 wi_plot + wi_map_plot + 
   plot_layout(ncol = 1, heights = c(2,1))
-dev.off()
 @
 
+\begin{figure}[H]
+\centering
+	\includegraphics[width=\textwidth]{wi_diagram}
+	\caption{Variation in the winkelmass with increasing spatial randomness of individual location.}
+	\label{wi_diagram}
+\end{figure}
+
+\end{document}
