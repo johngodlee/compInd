@@ -5,7 +5,7 @@
 #' @param focal_dbh DBH of focal tree
 #' @param czr Competition zone radius (CZR), normally based on plot-level stem density
 #'
-#' @return atomic vector of competition index for focal tree
+#' @return value of competition index for focal tree
 #' 
 #' @details Value increases with dbh of competitor trees, decreases as the 
 #' focal tree DBH increases. Value increases as the distance of competitor 
@@ -17,6 +17,16 @@
 #' Management. Volume 6. Pages 343-360.
 #'
 #' @seealso [lorimerCZR()] to calculate the CZR
+#' 
+#' @examples 
+#' data(bicuar)
+#' czr <- lorimerCZR(k = 1, n = nrow(bicuar))
+#' nb <- nearNeighb(bicuar$x, bicuar$y, bicuar$stem_id, radius = czr) 
+#' lapply(nb, function(x) {
+#'   nb <- merge(x, bicuar, by.x = "nb", by.y = "stem_id", all.x = TRUE)
+#'   focal_diam <- unique(bicuar[bicuar$stem_id == unique(nb$focal),"diam"])
+#'   lorimerComp(nb$diam, nb$nb_dist, focal_diam, czr)
+#'   })
 #' 
 #' @export
 #' 

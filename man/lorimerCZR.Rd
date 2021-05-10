@@ -12,7 +12,7 @@ lorimerCZR(k, n)
 \item{n}{number of trees per hectare}
 }
 \value{
-atomic vector of competition zone radius
+value of competition zone radius
 }
 \description{
 Lorimer's Competition Zone Radius - Lorimer 1983
@@ -20,6 +20,11 @@ Lorimer's Competition Zone Radius - Lorimer 1983
 \details{
 Estimates the competition zone radius, based on the number of
 trees per hectare in the plot multiplied by a constant (\eqn{k}).
+}
+\examples{
+data(bicuar)
+lorimerCZR(1, nrow(bicuar))
+
 }
 \references{
 Lorimer, C. G. (1983). Tests of age-independent competition

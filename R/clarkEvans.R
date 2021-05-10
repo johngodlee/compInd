@@ -5,7 +5,7 @@
 #' @param area area of the plot, in the same units as \code{x} and 
 #'     \code{y} coordinates
 #'
-#' @return Value of the Clark-Evans index.
+#' @return Value of the competition index for the structural unit, i.e. plot.
 #' 
 #' @details Essentially the sum of nearest neighbour distances of all 
 #'     individuals in the plot, normalised by the density of individuals in 
@@ -19,6 +19,10 @@
 #' 
 #' @importFrom sf st_as_sf
 #' @importFrom nngeo st_nn
+#' 
+#' @examples
+#' data(bicuar)
+#' clarkEvans(bicuar$x, bicuar$y, 10000)
 #' 
 #' @export
 #' 

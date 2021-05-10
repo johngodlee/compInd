@@ -2,11 +2,12 @@
 #'
 #' @param x numeric vector of DBH values
 #'
-#' @return numeric vector
+#' @return numeric vector of basal area values 
 #' 
 #' @examples 
 #' a <- c(1.23, 5.67, 10.11)
 #' basalArea(a)
+#'
 #' @export
 #' 
 basalArea <- function(x){ 

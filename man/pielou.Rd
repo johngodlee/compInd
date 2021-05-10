@@ -22,15 +22,22 @@ pielou(x, y, xmin, xmax, ymin, ymax, k)
 \item{k}{number of randomly allocated sample points}
 }
 \value{
-Value of Pielou's index
+value of the competition index for the structural unit, i.e. plot.
 }
 \description{
 Pielou's index of non-randomness
 }
 \details{
+The sum of squared nearest neighbour distances normalised by the number of sample points and the number of individuals in the structural unit. Defined by the equation: \deqn{\pi \frac{n}{A} \frac{1}{k} \sum_{1}^{k} r_{i}^{2}} where \eqn{n} is the number of individuals in the structural unit, \eqn{A} is the structural unit area, \eqn{k} is the number of sample points, and \eqn{r_{i}} is the nearest neighbour distance to individual \eqn{i}.
+
 As the sample points are randomly allocated within the bounds of
 xmin,xmax,ymin,ymax, the mean of a number of runs of this function
 could be used to further constrain the estimate of Pielou's index.
+}
+\examples{
+data(bicuar)
+pielou(bicuar$x_grid, bicuar$y_grid, 0, 100, 0, 100, 4)
+
 }
 \references{
 Pielou, E. C. (1959). The use of point to plant distances in

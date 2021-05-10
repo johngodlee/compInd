@@ -15,7 +15,7 @@ clarkEvans(x, y, area)
 \code{y} coordinates}
 }
 \value{
-Value of the Clark-Evans index.
+Value of the competition index for the structural unit, i.e. plot.
 }
 \description{
 Clark-Evans index of neighbourhood pattern
@@ -26,6 +26,11 @@ individuals in the plot, normalised by the density of individuals in
 the plot. Bounded between 0 and 2.15, with values <1 indicating a
 clustered distribution. A completely regular hexagonal distribution
 results in the highest value of 2.15.
+}
+\examples{
+data(bicuar)
+clarkEvans(bicuar$x, bicuar$y, 10000)
+
 }
 \references{
 Clark, F. J., Evans, F. C. (1954). Distance to the nearest

@@ -2,7 +2,7 @@
 % Please edit documentation in R/winkelmass.R
 \name{winkelmass}
 \alias{winkelmass}
-\title{Calculate the Winkelmass (spatial regularity of trees)}
+\title{Calculate the Winkelmass (spatial regularity of individuals)}
 \usage{
 winkelmass(x, y, k = 4)
 }
@@ -14,10 +14,22 @@ winkelmass(x, y, k = 4)
 \item{k}{number of neighbours to consider}
 }
 \value{
-
+value of the competition index for each individual in the structural unit, i.e. plot.
 }
 \description{
-Calculate the Winkelmass (spatial regularity of trees)
+Calculate the Winkelmass (spatial regularity of individuals)
+}
+\details{
+literally in German, the 'angle measure', describes the degree of spatial regularity of individuals surrounding a given focal individual. The angle between each sequential neighbour with reference to the focal tree is calculated. As per the equation: \deqn{\frac{1}{k} \sum_{j=1}^{k} v_{j}} where \eqn{v_{j}} is \eqn{1} if the angle (\eqn{\alpha}) between neighbours is less than the critical angle, i.e. \eqn{\alpha \le \frac{360}{k}}, or \eqn{0} otherwise. As per von Gadow and Hui (2001) this function could be adapted to calculate regularity as a point attribute rather than an individual attribute.
+
+As per von Gadow and Hui (2001) this function could be adapted to calculate spatial mingling as a point attribute rather than an individual attribute.
+
+Normally expressed as the mean of values per structural unit to scale up.
+}
+\examples{
+data(bicuar)
+winkelmass(bicuar$x_grid, bicuar$y_grid, 4)
+
 }
 \references{
 von Gadow, K., Hui, G. Y. (2001). Characterising forest spatial

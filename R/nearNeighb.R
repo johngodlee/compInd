@@ -6,17 +6,23 @@
 #' @param k number of neighbours to search for, starting from nearest in 
 #'     coordinate space. If NULL, \code{radius} must be provided.
 #' @param radius radius to look for nearest neighbours, in units of XY 
-#'     coordinates. If NULL, \code{k} must be provided.
-#' @param zones number of zones of equal arc angle, e.g. zones == 4 results in 
-#'     four zones each with 90deg arc. If NULL, no zones are defined. If zones
+#'     coordinates. If \code{NULL}, \code{k} must be provided.
+#' @param zones number of zones of equal arc angle, e.g. \code{zones = 4} results in 
+#'     four zones each with 90deg arc. If \code{NULL}, no zones are defined. If zones
 #'     are defined, the nearest competitor within each zone is returned. If 
 #'     zones are defined, \code{radius} must also be defined.
 #'
 #' @return list of dataframes per focal tree, of neighbours, their distances 
-#'     and angles. If no competitors are found within the radius of a focal 
+#'     and angles relative to the focal tree. If no competitors are found within the radius of a focal 
 #'     tree, NA is returned for all columns except focal ID.
 #' 
 #' @importFrom sf st_as_sf
+#' 
+#' @examples
+#' data(bicuar)
+#' nearNeighb(bicuar$x, bicuar$y, bicuar$stem_id, k = 4)
+#' nearNeighb(bicuar$x, bicuar$y, bicuar$stem_id, radius = 5)
+#' nearNeighb(bicuar$x, bicuar$y, bicuar$stem_id, radius = 5, zones = 4)
 #' 
 #' @export
 #' 
@@ -34,8 +40,10 @@ nearNeighb <- function(x, y, id = NULL, k = NULL, radius = NULL, zones = NULL) {
     stop("Either k or radius must be defined, not both")
   }
 
-  if (k >= length(x)) {
-    stop("k is larger than the number of stems in the plot")
+  if (!is.null(k)) {
+    if (k >= length(x)) {
+      stop("k is larger than the number of stems in the plot")
+    }
   }
 
   if (length(x) != length(y)) {

@@ -14,7 +14,7 @@ crowdInd(dbh, dbh_min = 10, dbh_max = 30)
 \item{dbh_max}{maximum DBH threshold considered}
 }
 \value{
-atomic vector of competition index for focal tree
+value of competition index for focal tree
 }
 \description{
 Forest matrix crowding index - Seydack et al. 2011
@@ -24,6 +24,15 @@ A simple competition index which returns the sum of DBH values of
 all competitor trees within user-defined DBH thresholds. Armin et al.
 (2011) use a minimum threshold of 10 cm DBH and a maximum threshold of
 30 cm DBH.
+}
+\examples{
+data(bicuar)
+nb <- nearNeighb(bicuar$x, bicuar$y, bicuar$stem_id, k = 4) 
+lapply(nb, function(x) {
+  nb <- merge(x, bicuar, by.x = "nb", by.y = "stem_id")
+  crowdInd(nb$diam, dbh_min = 10, dbh_max = 30)
+  })
+
 }
 \references{
 Armin H.W. Seydack, Graham Durrheim, Josua H. Louw.

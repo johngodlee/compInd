@@ -1,7 +1,6 @@
-#' Data from a 1 ha woodland plot in Bicucar National Park, Angola
+#' Tree stem data from a 1 ha woodland plot in Bicuar National Park, Angola
 #'
 #' @name bicuar 
 #' @docType data
-#' @author John L. Godlee
 #' @usage data(bicuar)
 "bicuar"

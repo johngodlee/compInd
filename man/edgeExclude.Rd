@@ -7,7 +7,7 @@
 edgeExclude(shape, buffer, x, y, id = NULL)
 }
 \arguments{
-\item{shape}{plot polygon \code{sf POLYGON} object}
+\item{shape}{\code{sf POLYGON} object defining plot area}
 
 \item{buffer}{size of buffer zone inside plot, same scale as coordinates of
 \code{shape}}
@@ -18,10 +18,10 @@ edgeExclude(shape, buffer, x, y, id = NULL)
 \item{y}{vector of individual y axis coordinates in the same coordinates as
 \code{shape}}
 
-\item{id}{vector of individual IDs. If NULL, vector positions are used.}
+\item{id}{vector of individual IDs. If \code{NULL}, vector positions are used.}
 }
 \value{
-vector of \code{id}s which fall inside the buffer zone of the plot.
+vector of \code{id} values from individuals which fall inside the buffer zone of the plot.
 }
 \description{
 Find individuals in the "edge" of a plot
@@ -35,4 +35,11 @@ the competition radius set by \code{nearNeighb} is 5 m, the buffer
 should also be 5 m. Trees within the buffer zone are generally excluded
 as focal trees in competition indices, but may still be used as
 competitor trees by other focal trees not inside the buffer zone.
+}
+\examples{
+data(bicuar)
+shape <- sf::st_polygon(list(
+    cbind(c(0,0,120,120,0), c(0,120,120,0,0))))
+edgeExclude(shape, 5, bicuar$x, bicuar$y, bicuar$stem_id)
+
 }

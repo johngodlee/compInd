@@ -2,7 +2,7 @@
 % Please edit documentation in R/dataGen.R
 \name{dataGen}
 \alias{dataGen}
-\title{Generate fake data of a rectangular tree plot}
+\title{Generate fake data from a rectangular tree plot}
 \usage{
 dataGen(
   nplots = 5,
@@ -40,7 +40,7 @@ are drawn from a uniform distribution. Stem locations and species are
 randomly sampled, with repeats.
 }
 \description{
-Generate fake data of a rectangular tree plot
+Generate fake data from a rectangular tree plot
 }
 \examples{
 dat <- dataGen()

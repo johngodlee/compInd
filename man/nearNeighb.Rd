@@ -17,18 +17,25 @@ nearNeighb(x, y, id = NULL, k = NULL, radius = NULL, zones = NULL)
 coordinate space. If NULL, \code{radius} must be provided.}
 
 \item{radius}{radius to look for nearest neighbours, in units of XY
-coordinates. If NULL, \code{k} must be provided.}
+coordinates. If \code{NULL}, \code{k} must be provided.}
 
-\item{zones}{number of zones of equal arc angle, e.g. zones == 4 results in
-four zones each with 90deg arc. If NULL, no zones are defined. If zones
+\item{zones}{number of zones of equal arc angle, e.g. \code{zones = 4} results in
+four zones each with 90deg arc. If \code{NULL}, no zones are defined. If zones
 are defined, the nearest competitor within each zone is returned. If
 zones are defined, \code{radius} must also be defined.}
 }
 \value{
 list of dataframes per focal tree, of neighbours, their distances
-and angles. If no competitors are found within the radius of a focal
+and angles relative to the focal tree. If no competitors are found within the radius of a focal
 tree, NA is returned for all columns except focal ID.
 }
 \description{
 Find nearest neighbours within a radius
+}
+\examples{
+data(bicuar)
+nearNeighb(bicuar$x, bicuar$y, bicuar$stem_id, k = 4)
+nearNeighb(bicuar$x, bicuar$y, bicuar$stem_id, radius = 5)
+nearNeighb(bicuar$x, bicuar$y, bicuar$stem_id, radius = 5, zones = 4)
+
 }

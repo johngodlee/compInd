@@ -1,6 +1,6 @@
 Package: compInd
 Title: Forest tree-tree competition indices
-Version: 0.1
+Version: 1.0
 Authors@R: 
     person(given = "John",
            family = "Godlee",

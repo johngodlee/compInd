@@ -2,7 +2,7 @@
 #'
 #' @param ba vector of basal area of competitor trees
 #'
-#' @return atomic vector of competition index for focal tree
+#' @return value of competition index for focal tree
 #'
 #' @details Included mainly for posterity, simply the sum of basal areas of all 
 #' competitor trees.

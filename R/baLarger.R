@@ -1,9 +1,9 @@
 #' Basal area of larger trees - Wykoff et al. 1982
 #'
 #' @param ba vector of basal area of competitor trees
-#' @param focal_ba atomic vector of basal area of subject tree
+#' @param focal_ba value basal area of subject tree
 #'
-#' @return atomic vector of competition index for focal tree
+#' @return value of competition index for focal tree
 #' 
 #' @details Returns the sum of basal areas of all trees with basal area larger 
 #' than the focal tree.

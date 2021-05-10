@@ -1,4 +1,4 @@
-#' Generate fake data of a rectangular tree plot
+#' Generate fake data from a rectangular tree plot
 #'
 #' @param nplots number of plots 
 #' @param min_stems minimum number of stems per plot

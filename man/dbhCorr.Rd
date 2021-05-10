@@ -12,16 +12,26 @@ dbhCorr(dbh, focal_dbh)
 \item{focal_dbh}{DBH of focal tree}
 }
 \value{
-atomic vector of competition index for focal tree
+value of competition index for focal tree
 }
 \description{
 Diameter correlation index - Davies 2008
 }
 \details{
 All else being equal, the value of \code{diamCorr()} increases as
-the reference tree size increases. For a given reference tree size, the
+the focal tree size increases. For a given focal tree size, the
 value increases as average neighbour size increases. Given by the equation:
-\deqn{DCI_{i} = \frac{dbh_{i} \sum_{j=1}^{n} dbh_{j}}{n \overbar{dbh}^2}}
+\deqn{DCI_{i} = \frac{dbh_{i} \sum_{j=1}^{n} dbh_{j}}{n \overline{dbh}^2}}
+}
+\examples{
+data(bicuar)
+nb <- nearNeighb(bicuar$x, bicuar$y, bicuar$stem_id, k = 4) 
+lapply(nb, function(x) {
+  nb <- merge(x, bicuar, by.x = "nb", by.y = "stem_id")
+  focal_diam <- unique(bicuar[bicuar$stem_id == nb$focal,"diam"])
+  dbhCorr(nb$diam, focal_diam)
+  })
+
 }
 \references{
 Davis, O., Pommerening, A. (2008). The contribution of

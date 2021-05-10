@@ -2,7 +2,7 @@
 % Please edit documentation in R/pointDens.R
 \name{pointDens}
 \alias{pointDens}
-\title{Point density - Purr 1962}
+\title{Point density - Spurr (1962)}
 \usage{
 pointDens(dbh, dist)
 }
@@ -13,10 +13,22 @@ competitor trees}
 \item{dist}{vector of distances from focal tree to competitor trees}
 }
 \value{
-atomic vector of competition index for focal tree
+value of competition index for focal tree
 }
 \description{
-Point density - Purr 1962
+Point density - Spurr (1962)
+}
+\details{
+Calculates point density in units of \code{dist}, with the equation: \deqn{\sum_{k=i}^{n} (0.25 (k - 0.5) (D_{k} / L_{k})^2 ) / k} where \eqn{k} is the rank of the \eqn{k}th competitor by dbh value, \eqn{D_{k}} is the dbh of the \eqn{k}th competitor, and \eqn{L_{k}} is the distance of the \eqn{k}th competitor to the focal tree \eqn{i}.
+}
+\examples{
+data(bicuar)
+nb <- nearNeighb(bicuar$x, bicuar$y, bicuar$stem_id, k = 4) 
+lapply(nb, function(x) {
+  nb <- merge(x, bicuar, by.x = "nb", by.y = "stem_id")
+  pointDens(nb$diam, nb$nb_dist)
+  })
+
 }
 \references{
 Spurr, S. H. (1962). A measure of point density. Forest Science.

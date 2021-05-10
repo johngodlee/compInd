@@ -3,7 +3,7 @@
 \docType{data}
 \name{bicuar}
 \alias{bicuar}
-\title{Data from a 1 ha woodland plot in Bicucar National Park, Angola}
+\title{Tree stem data from a 1 ha woodland plot in Bicuar National Park, Angola}
 \format{
 An object of class \code{data.frame} with 460 rows and 6 columns.
 }
@@ -11,9 +11,6 @@ An object of class \code{data.frame} with 460 rows and 6 columns.
 data(bicuar)
 }
 \description{
-Data from a 1 ha woodland plot in Bicucar National Park, Angola
-}
-\author{
-John L. Godlee
+Tree stem data from a 1 ha woodland plot in Bicuar National Park, Angola
 }
 \keyword{datasets}

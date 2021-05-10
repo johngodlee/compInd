@@ -9,10 +9,10 @@ baLarger(ba, focal_ba)
 \arguments{
 \item{ba}{vector of basal area of competitor trees}
 
-\item{focal_ba}{atomic vector of basal area of subject tree}
+\item{focal_ba}{value basal area of subject tree}
 }
 \value{
-atomic vector of competition index for focal tree
+value of competition index for focal tree
 }
 \description{
 Basal area of larger trees - Wykoff et al. 1982

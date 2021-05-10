@@ -4,7 +4,7 @@
 #' @param dbh_min minimum DBH threshold considered
 #' @param dbh_max maximum DBH threshold considered
 #'
-#' @return atomic vector of competition index for focal tree
+#' @return value of competition index for focal tree
 #' 
 #' @details A simple competition index which returns the sum of DBH values of 
 #'     all competitor trees within user-defined DBH thresholds. Armin et al. 
@@ -16,6 +16,14 @@
 #'     forests: Edaphoclimatic environment, crowding and climate effects. 
 #'     Forest Ecology and Management. Volume 261. Issue 7. 2011. 
 #'     Pages 1152-1169.
+#' 
+#' @examples
+#' data(bicuar)
+#' nb <- nearNeighb(bicuar$x, bicuar$y, bicuar$stem_id, k = 4) 
+#' lapply(nb, function(x) {
+#'   nb <- merge(x, bicuar, by.x = "nb", by.y = "stem_id")
+#'   crowdInd(nb$diam, dbh_min = 10, dbh_max = 30)
+#'   })
 #' 
 #' @export
 #'

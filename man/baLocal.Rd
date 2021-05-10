@@ -10,7 +10,7 @@ baLocal(ba)
 \item{ba}{vector of basal area of competitor trees}
 }
 \value{
-atomic vector of competition index for focal tree
+value of competition index for focal tree
 }
 \description{
 Total basal area of competitor trees - Steneker and Jarvis 1963

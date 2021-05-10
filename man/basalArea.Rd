@@ -10,7 +10,7 @@ basalArea(x)
 \item{x}{numeric vector of DBH values}
 }
 \value{
-numeric vector
+numeric vector of basal area values
 }
 \description{
 Calculate basal area from DBH
@@ -18,4 +18,5 @@ Calculate basal area from DBH
 \examples{
 a <- c(1.23, 5.67, 10.11)
 basalArea(a)
+
 }

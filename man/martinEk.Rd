@@ -15,16 +15,26 @@ competitor trees}
 \item{focal_dbh}{DBH of focal tree}
 }
 \value{
-atomic vector of competition index for focal tree
+value of competition index for focal tree
 }
 \description{
 Martin and Ek 1984
 }
 \details{
-Gives the sum of ratio of competitor to focal tree DBHs, multiplied
+Gives the sum of ratios of competitor to focal tree DBHs, multiplied
 by the exponential of distances divided by competitor DBH plus focal DBH.
 Given by the equation:
 \deqn{\sum_{j\neq{}i}^{n} (d_{j} / d_{i}) exp((16l_{ij}) / (d_{i} + d_{j}))}
+}
+\examples{
+data(bicuar)
+nb <- nearNeighb(bicuar$x, bicuar$y, bicuar$stem_id, k = 4) 
+lapply(nb, function(x) {
+  nb <- merge(x, bicuar, by.x = "nb", by.y = "stem_id")
+  focal_diam <- unique(bicuar[bicuar$stem_id == nb$focal,"diam"])
+  martinEk(nb$diam, nb$nb_dist, focal_diam)
+  })
+
 }
 \references{
 Martin G. L., Ek A. R. (1984). A Comparison of Competition
