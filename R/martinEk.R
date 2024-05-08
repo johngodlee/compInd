@@ -30,8 +30,6 @@
 martinEk <- function(dbh, dist, focal_dbh) {
 	eq1 <- dbh / focal_dbh
 	eq2 <- (16 * dist) / (dbh + focal_dbh)
-	eq3 <- eq1 * exp(eq2)
+	eq3 <- eq1 * exp(-eq2)
 	sum(eq3)
 }
-
-

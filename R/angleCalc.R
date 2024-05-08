@@ -14,6 +14,6 @@
 #' 
 angleCalc <- function(x, y) {
   dst_diff <- as.numeric(x - y)
-  return((atan2(dst_diff[1], dst_diff[2]) + pi) / 0.01745329)
+  return((atan2(dst_diff[1], dst_diff[2]) + pi) / ((1/180) * pi))
 }
 
