@@ -4,14 +4,12 @@
 \alias{nearNeighb}
 \title{Find nearest neighbours within a radius}
 \usage{
-nearNeighb(x, y, id = NULL, k = NULL, radius = NULL, zones = NULL)
+nearNeighb(x, y = NULL, k = NULL, radius = NULL, zones = NULL)
 }
 \arguments{
-\item{x}{vector of individual x axis coordinates}
+\item{x}{two column matrix of individual x and y coordinates}
 
-\item{y}{vector of individual y axis coordinates}
-
-\item{id}{vector of individual IDs. If NULL, vector positions are used.}
+\item{y}{optional two column matrix of individual x and y coordinates}
 
 \item{k}{number of neighbours to search for, starting from nearest in
 coordinate space. If NULL, \code{radius} must be provided.}
@@ -25,17 +23,26 @@ are defined, the nearest competitor within each zone is returned. If
 zones are defined, \code{radius} must also be defined.}
 }
 \value{
-list of dataframes per focal tree, of neighbours, their distances
-and angles relative to the focal tree. If no competitors are found within the radius of a focal
-tree, NA is returned for all columns except focal ID.
+List of dataframes per focal individual in x, of neighbours,
+their distances and angles relative to the focal individual. If no
+competitors are found within the radius of a focal individual,
+NA is returned for all columns except focal ID.
 }
 \description{
 Find nearest neighbours within a radius
 }
+\details{
+If \code{y} is provided, nearest neighbours of individuals in
+\code{y} are identified for each individual in \code{x}, otherwise,
+nearest neighbours in \code{x} are identified.
+
+In the case of ties, the first nearest neighbour is returned.
+}
 \examples{
 data(bicuar)
-nearNeighb(bicuar$x, bicuar$y, bicuar$stem_id, k = 4)
-nearNeighb(bicuar$x, bicuar$y, bicuar$stem_id, radius = 5)
-nearNeighb(bicuar$x, bicuar$y, bicuar$stem_id, radius = 5, zones = 4)
+
+nearNeighb(bicuar[,c("x", "y")], k = 4)
+nearNeighb(bicuar[1:10, c("x", "y")], bicuar[, c("x", "y")], radius = 5)
+nearNeighb(bicuar[,c("x", "y")], radius = 5, zones = 4)
 
 }

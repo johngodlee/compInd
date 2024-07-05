@@ -2,32 +2,32 @@
 % Please edit documentation in R/edgeExclude.R
 \name{edgeExclude}
 \alias{edgeExclude}
-\title{Find individuals in the "edge" of a plot}
+\title{Find individuals inside a buffer zone away from the plot edge}
 \usage{
-edgeExclude(shape, buffer, x, y, id = NULL)
+edgeExclude(x, buffer, xmin, xmax, ymin, ymax)
 }
 \arguments{
-\item{shape}{\code{sf POLYGON} object defining plot area}
+\item{x}{two column matrix of individual x and y coordinates}
 
-\item{buffer}{size of buffer zone inside plot, same scale as coordinates of
-\code{shape}}
+\item{buffer}{size of buffer zone inside plot, same scale as coordinates
+\code{xmin}, \code{xmax}, \code{ymin}, \code{ymax}}
 
-\item{x}{vector of individual x axis coordinates in the same coordinates as
-\code{shape}}
+\item{xmin}{minimum x coordinate in plot}
 
-\item{y}{vector of individual y axis coordinates in the same coordinates as
-\code{shape}}
+\item{xmax}{maximum x coordinate in plot}
 
-\item{id}{vector of individual IDs. If \code{NULL}, vector positions are used.}
+\item{ymin}{minimum y coordinate in plot}
+
+\item{ymax}{maximum y coordinate in plot}
 }
 \value{
-vector of \code{id} values from individuals which fall inside the buffer zone of the plot.
+vector of rows from \code{x} which are not within the buffer zone.
 }
 \description{
-Find individuals in the "edge" of a plot
+Find individuals inside a buffer zone away from the plot edge
 }
 \details{
-Generally, the buffer size should be the same size as the
+Generally, the buffer size should be the same size as the expected
 competition zone radius around each tree, to ensure that the value of a
 given competition index isn't under-estimated for trees near the plot
 edge, due to a lack of data collected outside the plot. For example, if
@@ -38,8 +38,6 @@ competitor trees by other focal trees not inside the buffer zone.
 }
 \examples{
 data(bicuar)
-shape <- sf::st_polygon(list(
-    cbind(c(0,0,120,120,0), c(0,120,120,0,0))))
-edgeExclude(shape, 5, bicuar$x, bicuar$y, bicuar$stem_id)
+edgeExclude(bicuar[,c("x", "y")], 5, 0, 100, 0, 100)
 
 }

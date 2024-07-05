@@ -4,12 +4,10 @@
 \alias{clarkEvans}
 \title{Clark-Evans index of neighbourhood pattern}
 \usage{
-clarkEvans(x, y, area)
+clarkEvans(x, area)
 }
 \arguments{
-\item{x}{vector of individual x axis coordinates}
-
-\item{y}{vector of individual y axis coordinates}
+\item{x}{two column matrix of individual x and y coordinates}
 
 \item{area}{area of the plot, in the same units as \code{x} and
 \code{y} coordinates}
@@ -29,7 +27,7 @@ results in the highest value of 2.15.
 }
 \examples{
 data(bicuar)
-clarkEvans(bicuar$x, bicuar$y, 10000)
+clarkEvans(bicuar[,c("x", "y")], 10000)
 
 }
 \references{

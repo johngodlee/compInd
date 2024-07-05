@@ -4,12 +4,10 @@
 \alias{spatialMingling}
 \title{von Gadow's spatial mingling index}
 \usage{
-spatialMingling(x, y, sp, k = 4, adj = FALSE)
+spatialMingling(x, sp, k = 4, adj = FALSE)
 }
 \arguments{
-\item{x}{vector of individual x axis coordinates}
-
-\item{y}{vector of individual y axis coordinates}
+\item{x}{two column matrix of individual x and y coordinates}
 
 \item{sp}{vector of individual species names}
 
@@ -35,10 +33,12 @@ Normally expressed as the mean of values per structural unit to scale up.
 }
 \examples{
 data(bicuar)
-spatialMingling(bicuar$x_grid, bicuar$y_grid, bicuar$species, 
-  k = 4, adj = FALSE)
-spatialMingling(bicuar$x_grid, bicuar$y_grid, bicuar$species, 
-  k = 4, adj = TRUE)
+spatialMingling(bicuar[, c("x", "y")], bicuar$species,
+  k = 4, adj = FALSE
+)
+spatialMingling(bicuar[, c("x", "y")], bicuar$species,
+  k = 4, adj = TRUE
+)
 
 }
 \references{

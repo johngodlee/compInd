@@ -4,12 +4,10 @@
 \alias{pielou}
 \title{Pielou's index of non-randomness}
 \usage{
-pielou(x, y, xmin, xmax, ymin, ymax, k)
+pielou(x, xmin, xmax, ymin, ymax, k)
 }
 \arguments{
-\item{x}{vector of individual x axis coordinates}
-
-\item{y}{vector of individual y axis coordinates}
+\item{x}{two column matrix of individual x and y coordinates}
 
 \item{xmin}{minimum x coordinate in plot}
 
@@ -36,7 +34,7 @@ could be used to further constrain the estimate of Pielou's index.
 }
 \examples{
 data(bicuar)
-pielou(bicuar$x_grid, bicuar$y_grid, 0, 100, 0, 100, 4)
+pielou(bicuar[,c("x", "y")], 0, 100, 0, 100, 50)
 
 }
 \references{

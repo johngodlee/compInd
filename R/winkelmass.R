@@ -1,7 +1,6 @@
 #' Calculate the Winkelmass (spatial regularity of individuals)
 #'
-#' @param x vector of individual x axis coordinates
-#' @param y vector of individual y axis coordinates
+#' @param x two column matrix of individual x and y coordinates
 #' @param k number of neighbours to consider
 #'
 #' @return value of the competition index for each individual in the structural unit, i.e. plot.
@@ -17,28 +16,25 @@
 #' 
 #' Normally expressed as the mean of values per structural unit to scale up.
 #' 
-#' @importFrom sf st_as_sf st_geometry
-#' @importFrom nngeo st_nn 
-#' 
 #' @examples 
 #' data(bicuar)
-#' winkelmass(bicuar$x_grid, bicuar$y_grid, 4)
+#' winkelmass(bicuar[,c("x", "y")], 4)
 #' 
 #' @export
 #' 
-winkelmass <- function(x, y, k = 4) {
-  dat_sf <- sf::st_as_sf(data.frame(x,y), coords = c("x", "y"))
+winkelmass <- function(x, k = 4) {
 
-  dists <- suppressMessages(nngeo::st_nn(dat_sf, dat_sf, k = k+1, 
-      progress = FALSE))
+  x <- as.matrix(x)
+
+  nb <- nearNeighb(x, k = k)
 
   a0 <- 360 / k
 
-  wi <- unlist(lapply(dists, function(i) {
-    focal_sfg <- sf::st_geometry(dat_sf[i[1],])[[1]]
-    nb_sfg <- sf::st_geometry(dat_sf[i[-1],])
-    nb_angles <- sort(unlist(lapply(nb_sfg, function(j) {
-      angleCalc(focal_sfg, j)
+  wi <- unlist(lapply(nb, function(i) {
+    focal_i <- x[i$focal[1],]
+    nb_i <- x[i$nb,]
+    nb_angles <- sort(unlist(apply(nb_i, 1, function(j) {
+      angleCalc(focal_i, j)
     })))
   
     aj <- nb_angles - c(NA, head(nb_angles, -1))

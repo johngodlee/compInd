@@ -2,8 +2,12 @@
 % Please edit documentation in R/compInd.R
 \docType{package}
 \name{compInd-package}
+\alias{compInd}
 \alias{compInd-package}
 \title{compInd: Forest tree-tree competition indices}
+\description{
+
+}
 \details{
 A collection of functions drawn from the academic literature used
 in forests to quantify tree-tree competition.

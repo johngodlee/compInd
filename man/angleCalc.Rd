@@ -7,9 +7,9 @@
 angleCalc(x, y)
 }
 \arguments{
-\item{x}{point feature of class 'sf'}
+\item{x}{numeric vector with two elements, X and Y coordinates of a point}
 
-\item{y}{point feature of class 'sf'}
+\item{y}{numeric vector with two elements, X and Y coordinates of a point}
 }
 \value{
 azimuthal from x to y, in degrees
@@ -18,8 +18,8 @@ azimuthal from x to y, in degrees
 Calculate angle between two sf point objects
 }
 \examples{
-p1 <- st_point(c(0,1))
-p2 <- st_point(c(1,2))
+p1 <- c(0, 1)
+p2 <- c(1, 2)
 angleCalc(p1, p2)
 
 }

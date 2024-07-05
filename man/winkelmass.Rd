@@ -4,12 +4,10 @@
 \alias{winkelmass}
 \title{Calculate the Winkelmass (spatial regularity of individuals)}
 \usage{
-winkelmass(x, y, k = 4)
+winkelmass(x, k = 4)
 }
 \arguments{
-\item{x}{vector of individual x axis coordinates}
-
-\item{y}{vector of individual y axis coordinates}
+\item{x}{two column matrix of individual x and y coordinates}
 
 \item{k}{number of neighbours to consider}
 }
@@ -28,7 +26,7 @@ Normally expressed as the mean of values per structural unit to scale up.
 }
 \examples{
 data(bicuar)
-winkelmass(bicuar$x_grid, bicuar$y_grid, 4)
+winkelmass(bicuar[,c("x", "y")], 4)
 
 }
 \references{

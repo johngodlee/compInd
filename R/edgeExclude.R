@@ -1,15 +1,14 @@
-#' Find individuals in the "edge" of a plot
+#' Find individuals inside a buffer zone away from the plot edge
 #'
-#' @param shape \code{sf POLYGON} object defining plot area
-#' @param buffer size of buffer zone inside plot, same scale as coordinates of 
-#'     \code{shape}
-#' @param x vector of individual x axis coordinates in the same coordinates as 
-#'     \code{shape}
-#' @param y vector of individual y axis coordinates in the same coordinates as 
-#'     \code{shape}
-#' @param id vector of individual IDs. If \code{NULL}, vector positions are used.
+#' @param x two column matrix of individual x and y coordinates
+#' @param buffer size of buffer zone inside plot, same scale as coordinates 
+#'     \code{xmin}, \code{xmax}, \code{ymin}, \code{ymax}
+#' @param xmin minimum x coordinate in plot
+#' @param xmax maximum x coordinate in plot
+#' @param ymin minimum y coordinate in plot
+#' @param ymax maximum y coordinate in plot
 #'
-#' @details Generally, the buffer size should be the same size as the 
+#' @details Generally, the buffer size should be the same size as the expected
 #'     competition zone radius around each tree, to ensure that the value of a 
 #'     given competition index isn't under-estimated for trees near the plot 
 #'     edge, due to a lack of data collected outside the plot. For example, if 
@@ -18,52 +17,44 @@
 #'     as focal trees in competition indices, but may still be used as 
 #'     competitor trees by other focal trees not inside the buffer zone.
 #'
-#' @return vector of \code{id} values from individuals which fall inside the buffer zone of the plot. 
+#' @return vector of rows from \code{x} which are not within the buffer zone.
 #' 
-#' @importFrom sf st_as_sf st_sf st_sfc st_buffer st_join st_intersects st_drop_geometry
-#'
 #' @examples
 #' data(bicuar)
-#' shape <- sf::st_polygon(list(
-#'     cbind(c(0,0,120,120,0), c(0,120,120,0,0))))
-#' edgeExclude(shape, 5, bicuar$x, bicuar$y, bicuar$stem_id)
+#' edgeExclude(bicuar[,c("x", "y")], 5, 0, 100, 0, 100)
 #'
 #' @export
 #' 
-edgeExclude <- function(shape, buffer, x, y, id = NULL) {
-  # Check parameters defined properly
-  if (length(x) != length(y)) {
-    stop("Unequal coordinate vector lengths")
-  }
-
+edgeExclude <- function(x, buffer, xmin, xmax, ymin, ymax) {
+  # Check input
   if (buffer < 0 | !is.numeric(buffer) | length(buffer) != 1) {
     stop("Buffer must be a single positive number")
   }
 
-  # Add IDs if missing
-  if (is.null(id)) {
-    id <- seq_along(x)
+  if (xmax <= xmin | ymax <= ymin) {
+    stop("[x|y]max small than [x|y]min")
   }
 
-  # Are IDs unique?
-  if (any(duplicated(id))) {
-    stop("ID values are not unique")
+  if (buffer > (xmax - xmin) | buffer > (ymax - ymin)) {
+    stop("Buffer larger than plot")
   }
 
-  # Convert coordinates to sf object
-  pts <- sf::st_as_sf(data.frame(x, y, id), coords = c("x", "y"))
+  # Coerce x to matrix
+  x <- as.matrix(x)
+  rownames(x) <- seq_len(nrow(x))
 
-  # Are all points inside polygon?
-  if ( nrow(sf::st_join(sf::st_sf(sf::st_sfc(shape)), pts, sf::st_intersects)) != nrow(pts) ) {
-    stop("Some points not in polygon")
+  # Are all points inside plot?
+  if (any(x[,1] < xmin | x[,1] > xmax | x[,2] < ymin | x[,2] > ymin)) {
+    warning("Some points not within plot, these will be excluded.")
   }
 
-  # Make buffered polygon
-  shape_buf <- sf::st_buffer(shape, -buffer, endCapStyle = "FLAT")
-
-  # Find IDs inside buffer
-  outside <- unname(unlist(sf::st_drop_geometry(pts[!lengths(sf::st_intersects(pts, shape_buf)), "id"])))
+  # Find individuals well inside the plot and not in the buffer
+  out <- which(
+    x[,1] < xmax - buffer &
+      x[,1] > xmin + buffer & 
+      x[,2] < ymax - buffer &
+      x[,2] > ymin + buffer)
 
   # Return IDs
-  return(outside)
+  return(out)
 }
