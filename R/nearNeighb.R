@@ -71,6 +71,8 @@ nearNeighb <- function(x, y = NULL, k = NULL, radius = NULL, zones = NULL) {
     # If y was not supplied drop focal from neighbours
     if (is.null(y)) { 
       yz <- y2[-z,]
+    } else { 
+      yz <- y2
     }
 
     # Calculate distance between focal individual and each element of y

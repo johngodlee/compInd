@@ -45,7 +45,7 @@ pielou <- function(x, xmin, xmax, ymin, ymax, k) {
 
   kfrac <- 1 / k
 
-  areafrac <- nrow(dat_sf) / ((xmax - xmin) * (ymax - ymin))
+  areafrac <- nrow(x) / ((xmax - xmin) * (ymax - ymin))
 
   out <- pi * kfrac * areafrac * sqdistsum
 

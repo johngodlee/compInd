@@ -61,8 +61,8 @@ dataGen <- function(nplots = 5, min_stems = 200, max_stems = 500,
     out <- data.frame(
       plot_id,
       stem_id,
-      x_grid = grid_coords[,1],
-      y_grid = grid_coords[,2],
+      x = grid_coords[,1],
+      y = grid_coords[,2],
       species,
       diam)
 

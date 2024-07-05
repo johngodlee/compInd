@@ -35,7 +35,7 @@ edgeExclude <- function(x, buffer, xmin, xmax, ymin, ymax) {
     stop("[x|y]max small than [x|y]min")
   }
 
-  if (buffer > (xmax - xmin) | buffer > (ymax - ymin)) {
+  if (buffer >= (xmax - xmin) | buffer > (ymax - ymin)) {
     stop("Buffer larger than plot")
   }
 
@@ -44,16 +44,16 @@ edgeExclude <- function(x, buffer, xmin, xmax, ymin, ymax) {
   rownames(x) <- seq_len(nrow(x))
 
   # Are all points inside plot?
-  if (any(x[,1] < xmin | x[,1] > xmax | x[,2] < ymin | x[,2] > ymin)) {
+  if (any(x[,1] < xmin | x[,1] > xmax | x[,2] < ymin | x[,2] > ymax)) {
     warning("Some points not within plot, these will be excluded.")
   }
 
   # Find individuals well inside the plot and not in the buffer
-  out <- which(
-    x[,1] < xmax - buffer &
+  out <- unname(which(
+      x[,1] < xmax - buffer &
       x[,1] > xmin + buffer & 
       x[,2] < ymax - buffer &
-      x[,2] > ymin + buffer)
+      x[,2] > ymin + buffer))
 
   # Return IDs
   return(out)
