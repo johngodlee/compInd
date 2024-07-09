@@ -141,28 +141,36 @@ ggplot() +
   coord_equal()
 @
 
-Generate some extra columns:
+Generate some extra columns, like basal area from stem diameter:
 
 <<>>=
 dat$ba <- basalArea(dat$diam)
 @
 
-Many of the functions in \texttt{compInd} are calculated for each individual in the structural unit, based on the individuals in their local neighbourhood. \texttt{nearNeighb()} provides multiple methods of identifying neighbours around focal individuals, returning a list of dataframes, one per focal individual, with the spatial relationships between the focal individual and each neighbour. The example below first splits the example data by plot ID, then feeds the data plot by plot to \texttt{nearNeighb()}, extracting the 4 nearest neighbours to each individual in the plot. After that, it adds some extra information to each focal and neighbour individual such as the species, diameter and spatial coordinates.
+Many of the functions in \texttt{compInd} are calculated for each individual in the structural unit (normally a plot), based on the individuals in their local neighbourhood. \texttt{nearNeighb()} provides multiple methods of identifying neighbours around focal individuals, returning a list of dataframes, one per focal individual, with the spatial relationships between the focal individual and each neighbour. The example below first splits the example data by plot ID, then feeds the data plot by plot to \texttt{nearNeighb()}, extracting the 4 nearest neighbours to each individual in the plot. After that, it adds some extra information to each focal and neighbour individual such as the species, diameter and spatial coordinates.
 
 <<>>=
+# Split data into list of plots
 dat_split <- split(dat, dat$plot_id)
 
+# For each plot
 dat_neighb <- lapply(dat_split, function(x) {
+  # Calculate nearest neighbours 
   neighb <- nearNeighb(x[,c("x", "y")], k = 4)
+  
+  # Add auxiliary information
   out <- lapply(neighb, function(y) {
+    # For each focal individual
     focal_df <- x[y$focal,] 
     names(focal_df) <- c("plot_id", "focal_stem_id", 
       "focal_x", "focal_y", "focal_species", "focal_diam")
 
+    # For each neighbour
     nb_df <- x[y$nb, -which(names(x) == "plot_id")]
     names(nb_df) <- c("nb_stem_id", 
       "nb_x", "nb_y", "nb_species", "nb_diam")
     
+    # Combine dataframes
     do.call(cbind, list(y, focal_df, nb_df))
   })
   return(out)
@@ -186,19 +194,22 @@ Now it's possible to test various functions in \texttt{compInd}. The following f
 	\item{\texttt{domConInd()}}
 \end{itemize}
 
-Using \texttt{alemdag()} as an example, calculate the value of the Alemdag's tree competition index for each focal individual in each plot, using four neighbours as per convention:
+Using \texttt{alemdag()} as an example, calculate the value of the Alemdag's tree competition index for each individual in each plot, using four neighbours as per convention:
 
 <<>>=
+# For each plot
 alemdag_list <- lapply(dat_neighb, function(x) {
-	unlist(lapply(x, function(y) {
-		alemdag(y$nb_diam, y$nb_dist, unique(y$focal_diam))
-	}))
+  # For each individual
+  unlist(lapply(x, function(y) {
+    # Calculate competition index
+    alemdag(y$nb_diam, y$nb_dist, unique(y$focal_diam))
+  }))
 })
 @
 
-To use the other functions listed above, just switch the function name and particular arguments out in place of \texttt{alemdag()}. To scale up to a whole plot, either the sum or mean of values from focal individuals is commonly used, depending on the competition index.
+To use the other functions listed above, just switch the function name and particular arguments in place of \texttt{alemdag()}. To scale up to a whole plot, either the sum or mean of values from focal individuals is commonly used, depending on the competition index. It can also be informative to look at the distribution of values by calculating the standard deviation.
 
-Other functions for certain competition indices, those which don't rely on a zone of competition, act on each structural unit, i.e. plot, separately. These functions are:
+Other functions for competition indices, those which don't rely on a zone of competition, act on each structural unit (normally a plot), separately. These functions are:
 
 \begin{itemize}
 	\item{\texttt{clarkEvans()}}
@@ -210,20 +221,22 @@ Other functions for certain competition indices, those which don't rely on a zon
 Using \texttt{clarkEvans()} as an example, calculate the value of the Clark-Evans index for each individual in the plot:
 
 <<>>=
+# For each plot
 clarkEvans_list <- lapply(dat_split, function(x) {
-	clarkEvans(x[,c("x", "y")], area = 10000)
+  # Calculate competition index
+  clarkEvans(x[,c("x", "y")], area = 10000)
 })
 @
 
-There are some extra convenience functions in \texttt{compInd} to make it easier to prepare data for the competition index calculations. The first, \texttt{nearNeighb()} has already been showcased above. 
+There are some extra convenience functions in \texttt{compInd} to make it easier to prepare data for the competition index calculations. The first, \texttt{nearNeighb()} has already been explained above. 
 
-\texttt{lorimerCZR()} can be used to estimate the competition zone radius for a structural unit based on the number of individuals in the unit. The output of \texttt{lorimerCZR()} could then be fed to either \texttt{nearNeighb()} to identify neighbours or to \texttt{lorimerComp()}, which uses this value to normalise the result of the index for comparison among units with different individual densities.
+\texttt{lorimerCZR()} can be used to estimate the competition zone radius for a structural unit based on the number of individuals in the unit. The output of \texttt{lorimerCZR()} could then be fed to either \texttt{nearNeighb()} as the \texttt{radius} argument, or to \texttt{lorimerComp()}, which uses this value to normalise the result of the competition index for comparison among units with different individual densities.
 
 <<>>=
 lorimerCZR(k = 1, nrow(bicuar))
 @
 
-\texttt{edgeExclude()} can be used to find individuals that are sufficiently distant from the edge of a plot. For competition indices which rely on a radius of expected neighbourhood effects such as \texttt{lorimerComp()}, \texttt{alemdag()} etc, individuals near the edges of the plot will have an erroneous under-estimation of competition compared to other individuals in the plot interior, because there is a lack of data outside the plot. It is common practice to exclude focal individuals if they are located a distance from the plot edge that is less than the radius of the competition zone. These individuals could still be used as competitors for other focal individuals, but not as focal individuals themselves. 
+\texttt{edgeExclude()} can be used to find individuals that are sufficiently distant from the edge of a plot. For competition indices which rely on a competition zone radius such as \texttt{lorimerComp()}, \texttt{alemdag()} etc, individuals near the edges of the plot will erroneously under-estimate competition compared to other individuals in the plot interior, because individuals outside the plot are not recorded. It is common practice to exclude focal individuals if they are located a distance from the plot edge that is less than the radius of the competition zone. These individuals could still be used as competitors for other focal individuals, but not as focal individuals themselves. 
 
 Consider the plots below, which show the effect of a buffer of 10 m radius in causing under-estimations of competition calculated by \texttt{crowdInd()}:
 
@@ -251,19 +264,19 @@ dat$edge[edgeExclude(dat[,c("x", "y")], 10, 0, 100, 0, 100)] <- "IN"
 
 # Create boxplot
 ggplot() + 
-	geom_boxplot(data = dat, 
-		aes(x = edge, y = n_neighb, colour = edge))
+  geom_boxplot(data = dat, 
+    aes(x = edge, y = n_neighb, colour = edge))
 @
 
 <<>>=
-# Create a buffer around each plot
+# Create buffers around individuals to illustrate competition zone radius
 dat_buffer <- st_as_sf(dat, coords = c("x", "y")) %>%
-	st_buffer(., 10)
+  st_buffer(., 10)
 
-# Map of buffer radiuses, coloured by if individual is in edge of plot
+# Map of buffer radii, coloured by if individual is in the edge of the plot
 ggplot() + 
-	geom_sf(data = dat_buffer, aes(colour = edge), fill = NA) + 
-	geom_point(data = dat, aes(x = x, y = y)) 
+  geom_sf(data = dat_buffer, aes(colour = edge), fill = NA) + 
+  geom_point(data = dat, aes(x = x, y = y)) 
 @
 
 The various competition indices in \texttt{compInd} behave in subtly different ways as the number of individuals, species, neighbours or their spatial distribution changes. Below we produce visualisations of various indices under different conditions.
@@ -271,7 +284,7 @@ The various competition indices in \texttt{compInd} behave in subtly different w
 Generate data with increasing abundance:
 
 <<>>=
-ab_vec <- rep(seq(50,1000, 100), 10)
+ab_vec <- rep(seq(50,550, 100), 10)
 ab_list <- lapply(ab_vec, function(x) {
   out <- dataGen(nplots = 1, min_stems = x, max_stems = x, 
     species = LETTERS[1:10])
@@ -314,18 +327,22 @@ Calculate plot level values for various indices:
 
 <<>>=
 ab_summ <- do.call(rbind, mclapply(seq_along(ab_neighb), function(x) {
-  plot_id <- unique(ab_list[[x]]$plot_id)
-  ab_lorimerCZR <- lorimerCZR(1, nrow(ab_list[[x]])) 
-  ab_clarkEvans <- clarkEvans(ab_list[[x]][,c("x", "y")], 10000)
-  ab_pielou_mean <- mean(pielou(ab_list[[x]][,c("x", "y")], 0, 100, 0, 100, 20))
-  ab_spatialMingling_mean <- mean(spatialMingling(
-  		  ab_list[[x]][,c("x", "y")], ab_list[[x]]$species))
-  ab_winkelmass_mean <- mean(winkelmass(ab_list[[x]][,c("x", "y")], 4))
+  xdf <- ab_list[[x]]
+  plot_id <- xdf$plot_id[1]
 
+  # Calculate plot-level indices
+  ab_lorimerCZR <- lorimerCZR(1, nrow(xdf)) 
+  ab_clarkEvans <- clarkEvans(xdf[,c("x", "y")], 10000)
+  ab_pielou_mean <- mean(pielou(xdf[,c("x", "y")], 0, 100, 0, 100, 20))
+  ab_spatialMingling_mean <- mean(spatialMingling(
+  		  xdf[,c("x", "y")], xdf$species))
+  ab_winkelmass_mean <- mean(winkelmass(xdf[,c("x", "y")], 4))
+
+  # Calculate individual-level indices
   out <- do.call(rbind, lapply(ab_neighb[[x]], function(y) {
     data.frame(
       ab_alemdag = alemdag(y$nb_diam, y$nb_dist, unique(y$focal_diam)),
-      ab_baLarger = baLarger(y$nb_ba, unique(y$focal_ba)),
+      ab_baLarger = baLarger(y$nb_ba, unique(y$focal_ba), y$nb_ba),
       ab_baLocal = baLocal(y$nb_ba),
       ab_crowdInd = crowdInd(y$nb_diam),
       ab_dbhCorr = dbhCorr(y$nb_diam, unique(y$focal_diam)),
@@ -384,40 +401,57 @@ ggplot() +
 The number of neighbours considered by \texttt{nearNeighb()} also affects the behaviour of the indices:
 
 <<>>=
-# Using datasets with 100 individuals 
-k_vec <- seq(4,12,1)
+# Define vector of increasing number of neighbours 
+k_vec <- seq(1, 12, 1)
 
+# Using a dataset with randomly located individuals 
+datr <- ab_list[[length(ab_list)]]
+
+# Calculate nearest neighbours using maximum k
+nb <- nearNeighb(datr[,c("x", "y")], k = max(k_vec))
+
+nb_all <- lapply(nb, function(x) { 
+	focal_df <- datr[x$focal,] 
+	names(focal_df) <- c("plot_id", "focal_stem_id", 
+	  "focal_x", "focal_y", "focal_species", "focal_diam", "focal_ba")
+
+	nb_df <- datr[x$nb, -which(names(datr) == "plot_id")]
+	names(nb_df) <- c("nb_stem_id", 
+	  "nb_x", "nb_y", "nb_species", "nb_diam", "nb_ba")
+
+	do.call(cbind, list(x, focal_df, nb_df))
+	})
+
+# For each k
 k_summ <- do.call(rbind, mclapply(k_vec, function(x) {
-  do.call(rbind, lapply(ab_neighb[seq(2,182,20)], function(y) {
-    out <- do.call(rbind, lapply(y, function(z) {
-      data.frame(
-        ab_alemdag = alemdag(z$nb_diam[1:x], z$nb_dist[1:x], unique(z$focal_diam)),
-        ab_baLarger = baLarger(z$nb_ba[1:x], unique(z$focal_ba)),
-        ab_baLocal = baLocal(z$nb_ba[1:x]),
-        ab_crowdInd = crowdInd(z$nb_diam[1:x]),
-        ab_dbhCorr = dbhCorr(z$nb_diam[1:x], unique(z$focal_diam)),
-        ab_dbhDiff = dbhDiff(z$nb_diam[1:x], unique(z$focal_diam)),
-        ab_dbhDom = dbhDom(z$nb_diam[1:x], unique(z$focal_diam)),
-        ab_hegyi = hegyi(z$nb_diam[1:x], z$nb_dist[1:x], unique(z$focal_diam)),
-        ab_martinEk = martinEk(z$nb_diam[1:x], z$nb_dist[1:x], unique(z$focal_diam)),
-        ab_pointDens = pointDens(z$nb_diam[1:x], z$nb_dist[1:x])
-      )
-    }))
+  # For each individual
+  do.call(rbind, lapply(nb_all, function(y) {
+	  out <- data.frame(
+		ab_alemdag = alemdag(y$nb_diam[1:x], y$nb_dist[1:x], y$focal_diam[1]),
+		ab_baLarger = baLarger(y$nb_ba, y$focal_ba[1], y$nb_ba),
+		ab_baLocal = baLocal(y$nb_ba),
+		ab_crowdInd = crowdInd(y$nb_diam[1:x]),
+		ab_dbhCorr = dbhCorr(y$nb_diam[1:x], y$focal_diam[1]),
+		ab_dbhDiff = dbhDiff(y$nb_diam[1:x], y$focal_diam[1]),
+		ab_dbhDom = dbhDom(y$nb_diam[1:x], y$focal_diam[1]),
+		ab_hegyi = hegyi(y$nb_diam[1:x], y$nb_dist[1:x], y$focal_diam[1]),
+		ab_martinEk = martinEk(y$nb_diam[1:x], y$nb_dist[1:x], y$focal_diam[1]),
+		ab_pointDens = pointDens(y$nb_diam[1:x], y$nb_dist[1:x])
+	  )
 
-    out_summ <- out %>%
-      summarise(
-        ab_alemdag_mean = mean(ab_alemdag),
-        ab_baLarger_sum = sum(ab_baLarger),
-        ab_baLocal_sum = sum(ab_baLocal),
-        ab_crowdInd_mean = mean(ab_crowdInd),
-        ab_dbhCorr_mean = mean(ab_dbhCorr),
-        ab_dbhDiff_mean = mean(ab_dbhDiff),
-        ab_dbhDom_mean = mean(ab_dbhDom),
-        ab_hegyi_mean = mean(ab_hegyi),
-        ab_martinEk_mean = mean(ab_martinEk),
-        ab_pointDens_mean = mean(ab_pointDens)
-      ) %>%
-      mutate( k = x ) 
+	  out_summ <- out %>%
+	    summarise(
+          ab_alemdag_mean = mean(ab_alemdag),
+          ab_baLarger_sum = sum(ab_baLarger),
+          ab_baLocal_sum = sum(ab_baLocal),
+          ab_crowdInd_mean = mean(ab_crowdInd),
+          ab_dbhCorr_mean = mean(ab_dbhCorr),
+          ab_dbhDiff_mean = mean(ab_dbhDiff),
+          ab_dbhDom_mean = mean(ab_dbhDom),
+          ab_hegyi_mean = mean(ab_hegyi),
+          ab_martinEk_mean = mean(ab_martinEk),
+          ab_pointDens_mean = mean(ab_pointDens)) %>%
+        mutate(k = x) 
 
     return(out_summ)
   }))
@@ -425,6 +459,7 @@ k_summ <- do.call(rbind, mclapply(k_vec, function(x) {
 @
 
 <<>>=
+# TODO:
 k_summ_long <- k_summ %>% 
   pivot_longer(-k)
 
@@ -433,7 +468,7 @@ ggplot() +
     fill = "darkgrey", shape = 21) + 
   geom_smooth(data = k_summ_long, aes(x = as.numeric(k), y = value), 
     method = "loess") + 
-  facet_wrap(~key, scales = "free") + 
+  facet_wrap(~name, scales = "free") + 
   theme_bw() + 
   labs(x = "k", y = "")
 @
