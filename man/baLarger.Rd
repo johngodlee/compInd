@@ -4,12 +4,14 @@
 \alias{baLarger}
 \title{Basal area of larger trees - Wykoff et al. 1982}
 \usage{
-baLarger(ba, focal_ba)
+baLarger(ba, focal_size, size)
 }
 \arguments{
 \item{ba}{vector of basal area of competitor trees}
 
-\item{focal_ba}{value basal area of subject tree}
+\item{focal_size}{size of subject tree}
+
+\item{size}{vector of sizes of competitor trees}
 }
 \value{
 value of competition index for focal tree
@@ -18,8 +20,9 @@ value of competition index for focal tree
 Basal area of larger trees - Wykoff et al. 1982
 }
 \details{
-Returns the sum of basal areas of all trees with basal area larger
-than the focal tree.
+Returns the sum of basal areas of all trees larger than the focal
+tree. In Wykoff et al. (1982), \code{size} is basal area, though other
+measures of size could be used such as tree height (e.g. Flake et al. 2022).
 }
 \references{
 Wykoff, W. R., Crookston, N. L., Stage, A. R. (1982). User's
