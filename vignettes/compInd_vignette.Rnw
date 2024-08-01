@@ -160,18 +160,16 @@ dat_neighb <- lapply(dat_split, function(x) {
   
   # Add auxiliary information
   out <- lapply(neighb, function(y) {
-    # For each focal individual
-    focal_df <- x[y$focal,] 
-    names(focal_df) <- c("plot_id", "focal_stem_id", 
-      "focal_x", "focal_y", "focal_species", "focal_diam")
+    # Add data for focal tree  
+    y_f <- x[y$focal, c("diam", "species", "x", "y")]
+    names(y_f) <- paste0("focal_", names(y_f))
 
-    # For each neighbour
-    nb_df <- x[y$nb, -which(names(x) == "plot_id")]
-    names(nb_df) <- c("nb_stem_id", 
-      "nb_x", "nb_y", "nb_species", "nb_diam")
-    
+    # Add data for neighbouring trees
+    y_nb <- x[y$nb, c("diam", "species", "x", "y")]
+    names(y_nb) <- paste0("nb_", names(y_nb))
+
     # Combine dataframes
-    do.call(cbind, list(y, focal_df, nb_df))
+    cbind(y, y_f, y_nb)
   })
   return(out)
 })

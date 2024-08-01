@@ -59,8 +59,8 @@ nearNeighb <- function(x, y = NULL, k = NULL, radius = NULL, zones = NULL) {
   }
 
   # Coerce x and y to matrices
-  x <- as.matrix(x)
-  y2 <- as.matrix(y2)
+  x <- as.matrix(x, ncol = 2)
+  y2 <- as.matrix(y2, ncol = 2)
   rownames(y2) <- seq_len(nrow(y2))
 
   # Identify neighbours in y for each element of x (z)
@@ -70,7 +70,7 @@ nearNeighb <- function(x, y = NULL, k = NULL, radius = NULL, zones = NULL) {
 
     # If y was not supplied drop focal from neighbours
     if (is.null(y)) { 
-      yz <- y2[-z,]
+      yz <- y2[-z,, drop = FALSE]
     } else { 
       yz <- y2
     }
@@ -83,7 +83,7 @@ nearNeighb <- function(x, y = NULL, k = NULL, radius = NULL, zones = NULL) {
 
     if (!is.null(radius)) {
       # Get neighbours within radius
-      nb <- names(ydist[ydist <= radius])
+      nb <- as.numeric(names(ydist[ydist <= radius]))
     } else if (!is.null(k)) {
       # Get nearest k neighbours
       nb <- as.numeric(names(sort(ydist)[1:k]))
